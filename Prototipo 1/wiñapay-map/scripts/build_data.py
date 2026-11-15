@@ -66,8 +66,20 @@ def cargar_distritos(dist_file):
     return distritos, paths
 
 
+import os
+
+def encontrar_archivo(req, subcarpeta, nombre):
+    directo = os.path.join(req, nombre)
+    if os.path.exists(directo):
+        return directo
+    sub = os.path.join(req, subcarpeta, nombre)
+    if os.path.exists(sub):
+        return sub
+    return directo
+
 def curvas_nivel(req, paths):
-    d = nc.Dataset(f"{req}/cusco_province_trends_request/NASADEM_NC.001_30m_aid0001.nc")
+    ruta_dem = encontrar_archivo(req, "cusco_province_trends_request", "NASADEM_NC.001_30m_aid0001.nc")
+    d = nc.Dataset(ruta_dem)
     h = np.ma.filled(d.variables["NASADEM_HGT"][0].astype(float), np.nan)
     lat = np.array(d.variables["lat"][:])
     lon = np.array(d.variables["lon"][:])
@@ -105,7 +117,10 @@ def curvas_nivel(req, paths):
 
 
 def cargar_ndvi(req):
-    d = nc.Dataset(f"{req}/cusco_province_ndvi_request/MOD13Q1.061_250m_aid0001.nc")
+    ruta_ndvi = encontrar_archivo(req, "cusco_province_ndvi_request", "MOD13Q1.061_250m_aid0001_ndvi.nc")
+    if not os.path.exists(ruta_ndvi):
+        ruta_ndvi = encontrar_archivo(req, "cusco_province_ndvi_request", "MOD13Q1.061_250m_aid0001.nc")
+    d = nc.Dataset(ruta_ndvi)
     ndvi = np.ma.filled(d.variables["_250m_16_days_NDVI"][:], np.nan).astype(float)
     vq = np.ma.filled(d.variables["_250m_16_days_VI_Quality"][:], 0).astype(np.int64)
     t = d.variables["time"]

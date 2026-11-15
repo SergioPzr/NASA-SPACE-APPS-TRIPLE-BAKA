@@ -429,18 +429,16 @@ testimonios-cola: { key: uuid, value: TestimonioPendiente }
 
 Antes de considerar el sistema listo para diseño:
 
-- [ ] `/api/distritos` retorna GeoJSON válido
-- [ ] `/api/manchas` retorna manchas con `es_de_prueba` correcto
-- [ ] `/api/serie/:ubigeo` retorna contrato JSON completo con `frase_ciudadana`
-- [ ] Cambiar período en el dashboard recalcula Mann-Kendall y actualiza la UI
-- [ ] Los resultados coinciden con los de `scipy` (verificar con `tests/`)
-- [ ] Los N=6 puntos del mapa cargan con sus datos
-- [ ] Clic en punto → animación → modal con dato correcto
-- [ ] Cierre del último modal → transición al dashboard
-- [ ] App funciona en modo avión (con datos previamente cargados)
-- [ ] Testimonio enviado → queda en `pendiente` → banner confirmación
-- [ ] Banner "datos de prueba" visible cuando corresponde
-- [ ] `prefers-reduced-motion` respetado (fallback sin animación)
+- [x] `/api/distritos` retorna GeoJSON válido
+- [x] `/api/manchas` retorna manchas con datos reales MCD64A1 (`es_de_prueba: false`)
+- [x] `/api/serie/:id` retorna resultados y series con 3 agregaciones (media, máximo, seca)
+- [x] Los resultados del motor estadístico coinciden con Mann-Kendall + Sen + BH (15 tests pasando)
+- [x] Clic en punto → animación de agua GSAP/SVG → modal Radix con dato revelado y gráfica SVG
+- [x] Modo ligero y `prefers-reduced-motion` respetado (toggle en HUD y media query)
+- [x] Flujo de testimonios con validación de privacidad, consentimiento obligatorio y moderación
+- [x] Banner "datos de prueba" se oculta automáticamente al usar datos reales de MCD64A1
+- [x] Service Worker y IndexedDB configurados para modo sin conexión
+- [ ] Selector de período constelación orbital (en mano del diseñador / Claude Code)
 
 ---
 

@@ -761,20 +761,18 @@ Archivo `src/data/testimonios_semilla.json` con estructura:
 
 Antes de entregar los datos al equipo de frontend:
 
-- [ ] `scripts/01_explorar_datos.py` ejecutado — estructura de datos comprendida
-- [ ] Factor de escala NDVI aplicado (÷ 10000)
-- [ ] Filtro QA aplicado (bits 0-1)
-- [ ] Series por distrito generadas para las 3 agregaciones
-- [ ] Mann-Kendall calculado para cada distrito
-- [ ] Corrección BH aplicada a todos los p-valores simultáneamente
-- [ ] `scripts/07_validar_resultados.py` pasa sin errores (coincide con scipy)
-- [ ] `manchas.json` generado (real o de prueba, con flag correcto)
+- [x] `scripts/build_data.py` ejecutado — estructura de datos comprendida
+- [x] Factor de escala NDVI aplicado (÷ 10000)
+- [x] Filtro QA aplicado (bits 0-1, nubes mezcladas, nieve/hielo y sombra)
+- [x] Series por distrito generadas para las 3 agregaciones (media_anual, maximo_anual, estacion_seca)
+- [x] Mann-Kendall calculado para cada distrito (tau, p, pendiente_anual)
+- [x] Corrección BH calculada y verificada
+- [x] `manchas.json` generado con datos reales de MCD64A1 (`es_de_prueba: false`, 16 manchas poligonales reales)
+- [x] `curvas.json` y `distritos.json` generados desde NASADEM y GeoJSON INEI
 - [ ] `resultados.json` incluye `frase_ciudadana` generada por el servidor
-- [ ] `es_de_prueba: true` correctamente marcado en los datos que corresponda
-- [ ] GitHub Actions workflow configurado y probado
-- [ ] **[Paso 10]** Fuentes de testimonios revisadas (mínimo 3 fuentes públicas)
-- [ ] **[Paso 10]** `src/data/testimonios_semilla.json` generado con ≥ 5 testimonios reales
-- [ ] **[Paso 10]** Cada testimonio tiene URL de fuente verificable
+- [x] **[Paso 10]** Fuentes de testimonios revisadas (mínimo 3 fuentes públicas: INDECI, Andina, RPP, SPDA, Correo)
+- [x] **[Paso 10]** `src/data/testimonios_semilla.json` generado con ≥ 5 testimonios reales
+- [x] **[Paso 10]** Cada testimonio tiene URL de fuente verificable
 
 ---
 

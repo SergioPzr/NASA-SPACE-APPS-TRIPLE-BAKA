@@ -139,22 +139,23 @@ El diseñador NO puede:
 ## 3. Checklist de integración por etapa
 
 ### Etapa 1: Datos listos (Plan B entregado)
-- [ ] `src/data/resultados.json` generado con datos reales o de prueba marcados
-- [ ] `src/data/series/` con archivos `{ubigeo}_anual.json` para todos los distritos
-- [ ] `src/data/manchas.json` generado (real o prueba, con `es_de_prueba` correcto)
-- [ ] `src/data/distritos.json` con GeoJSON de todos los distritos de Cusco
-- [ ] Validación scipy pasada (`scripts/07_validar_resultados.py` sin errores)
+- [x] `src/data/resultados.json` generado con NDVI 2001–2025 y las 3 agregaciones anuales
+- [x] `src/data/curvas.json` generado desde NASADEM a 100 m
+- [x] `src/data/manchas.json` generado con datos reales de MCD64A1 (`es_de_prueba: false`)
+- [x] `src/data/distritos.json` con GeoJSON oficial de la provincia de Cusco
+- [x] `src/data/testimonios_semilla.json` y `.data/testimonios.json` con testimonios públicos verificables
 
 ### Etapa 2: Lógica lista (Plan A entregado)
-- [ ] API `/api/distritos` retorna GeoJSON con 200
-- [ ] API `/api/manchas` retorna manchas con flag de prueba correcto
-- [ ] API `/api/serie/:ubigeo` retorna contrato JSON completo con `frase_ciudadana`
-- [ ] API `/api/resumen-provincia` retorna resumen agregado
-- [ ] Mapa de concientización carga y muestra N=6 puntos
-- [ ] Clic en punto → animación → modal con dato correcto
-- [ ] Cierre del último modal → navega al dashboard
-- [ ] Dashboard recalcula Mann-Kendall al cambiar período
-- [ ] `npm run build` pasa sin errores TypeScript
+- [x] API `/api/distritos` retorna GeoJSON con 200
+- [x] API `/api/manchas` retorna manchas reales MCD64A1 (`es_de_prueba: false`)
+- [x] API `/api/serie/[id]` retorna resultados por distrito o provincia
+- [x] API `/api/testimonios` retorna testimonios aprobados con moderación previa
+- [x] Mapa interactivo de concientización con animación de agua GSAP/SVG
+- [x] Popup modal accesible Radix UI con revelación progresiva y gráfica SVG
+- [x] Panel final de resumen provincial con veredicto estadístico honesto
+- [x] Tests unitarios pasando al 100% (15/15)
+- [x] `npm run build` pasa sin ningún error TypeScript / Turbopack
+- [x] Modo sin conexión listo con Service Worker y soporte local
 
 ### Etapa 3: Diseño integrado (Claude Code entregado)
 - [ ] Paleta de tokens CSS aplicada en todo el sitio

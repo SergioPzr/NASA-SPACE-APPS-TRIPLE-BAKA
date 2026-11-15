@@ -75,6 +75,31 @@
 
 ---
 
+## Estado actual de ejecución (Actualizado en tiempo real)
+
+- [x] **FASE 1 (Pipeline + Base)**:
+  - [x] Python 3.13 con `netCDF4`, `numpy`, `scipy`, `pymannkendall`, `rasterio`, `shapely` instalado
+  - [x] Pipeline `scripts/build_data.py` ejecutado sobre datos NASA de `Data/`
+  - [x] NDVI 2001–2025 procesado para los 8 distritos con 3 agregaciones anuales (media, máx, seca)
+  - [x] Curvas de nivel NASADEM a 100 m generadas en `src/data/curvas.json`
+  - [x] Manchas reales de área quemada extraídas de MCD64A1 (`es_de_prueba: false`, 16 polígonos reales)
+  - [x] `.env.local` creado desde `.env.example`
+  - [x] `npm run build` y `npm run test:unit` pasando al 100% (15/15)
+- [x] **FASE 2 (Lógica avanzada + Testimonios semilla)**:
+  - [x] `scripts/10_recolectar_testimonios.py` ejecutado
+  - [x] Testimonios verificables basados en fuentes públicas (INDECI, Andina, RPP, SPDA, Correo) en `src/data/testimonios_semilla.json` y `.data/testimonios.json`
+  - [x] APIs `/api/distritos`, `/api/manchas`, `/api/serie/[id]`, `/api/testimonios` operativas con fallback local
+- [ ] **FASE 3 (Diseño visual — Claude Code)**:
+  - [ ] Diseñador toma `CLAUDE.md` y `Informacion/02_ESPECIFICACION_UX.md`
+  - [ ] Implementar estética minimalista / documental con los tokens CSS (`--bosque`, `--terracota`, `--dorado`, etc.)
+  - [ ] Componente `SelectorConstelacion` (estética NASA)
+  - [ ] Revisión de accesibilidad y `prefers-reduced-motion`
+- [ ] **FASE 4 (Plan C — Integración final y despliegue)**:
+  - [ ] Checklist completo de integración
+  - [ ] Despliegue en Vercel / Netlify
+
+---
+
 ## Checklist de prerequisitos antes de empezar
 
 ```bash
