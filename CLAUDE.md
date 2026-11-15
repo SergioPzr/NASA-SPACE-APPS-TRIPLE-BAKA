@@ -1,8 +1,27 @@
 # CLAUDE.md — WIÑAPAY: Instrucciones para el agente de diseño
 > **Para**: Claude Code (agente de diseño visual)
 > **Proyecto**: NASA Space Apps Challenge 2026 · Cusco, Perú
-> **Tu rol**: Diseño visual, animaciones y estética. NO tocar la lógica ni los datos.
+> **Tu rol**: Diseño visual y estética. NO tocar la lógica ni los datos (regla firme, ver "Fase 3" abajo).
 > **Stack**: Next.js (App Router) + TypeScript + GSAP + MapLibre GL v5.x
+
+---
+
+## 🔒 Fase 3 (actual): SOLO DISEÑO — no se toca la lógica
+
+Al crear o modificar interfaces, sigue @DESIGN.md **solo para la ubicación de los colores** (qué va sobre qué: lienzo oscuro con tipografía clara, bandas claras que cortan, un único color de acento para la acción). **Sus colores y su tipografía NO se usan** (nada de `#da291c` ni FerrariSans): la paleta y las fuentes de WIÑAPAY son las de este archivo.
+
+**Reglas de la fase 3 (decididas por el equipo):**
+1. **No se toca la lógica ni los datos.** Quedan fuera de alcance: `src/lib/**`, `src/app/api/**`, `src/data/**`, `scripts/**`, `supabase/**`, `public/sw.js` y `tests/**`. Tampoco cambian props, estado, nombres de clases/atributos que la lógica usa (`.etiqueta`, `.popup`, `.valor`, `.pista`, `.contador`, `data-primario`, etc.) ni textos que vienen de los datos.
+2. **Solo se cambia lo visual**: CSS, estructura presentacional del JSX y tipografía/espaciado. Si un cambio visual exige tocar lógica, se detiene y se documenta en `NOTAS_DISENO.md`.
+   - **Excepción autorizada (mapa del juego, `/mapa`)**: en `src/lib/mapa.ts` se puede tocar **solo la capa visual**: estilos de capas MapLibre (colores, halos, patrones, cielo/niebla), animación del chorro de agua y marcas visuales de lo ya apagado. Quedan intactos el flujo del juego, los estados (`fase`, `apagadas`, `popup`…), el progreso en `localStorage`, la interfaz del `Controlador` y los datos.
+3. **Paleta base + espectros (actualizado por decisión del equipo, 15 nov)**: se mantienen los tokens base (`--bosque`, `--profundo`, `--salvia`, `--crema`, `--arena`, `--terracota`, `--dorado`, `--tinta`, `--apagado`, `--blanco`, `--terra-texto`) y se **permiten colores fuera de la paleta, degradados y fusiones** para dar más vida, siempre con significado y como tokens en `globals.css`:
+   - Fuego: `--rojo-fuego`, `--brasa`, `--llama` · Verdor: `--musgo`, `--brote`, `--ocre` · Profundidad: `--noche` · Agua: `--agua`.
+   - El texto sobre degradados debe cumplir contraste AA en **todo** el recorrido del degradado.
+4. **Tipografía**: solo DM Serif Display + DM Sans. Sin fuentes nuevas.
+5. **Eslogan**: el actual, «El territorio cambia. Hagámoslo visible.» (no usar «tiene memoria»).
+6. **Sin animaciones nuevas por ahora**: el movimiento (GSAP, entradas, cortinas) se hace al final de la fase 3, en una pasada aparte. Se conservan las animaciones existentes del mapa; solo se garantiza `prefers-reduced-motion`.
+7. **Testimonios**: se mantiene el estado vacío honesto actual. No se muestran testimonios semilla ni datos inventados.
+8. **Concepto visual**: «Dos Cusco», el territorio partido en dos estados (con registros de fuego / sin ellos).
 
 ---
 

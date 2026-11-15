@@ -38,7 +38,7 @@ export function Grafica({ serie, pendienteAnual, anios, progreso = 1, tendencia 
     if (previo.current === null || rapido) {
       el.style.strokeDashoffset = String(destino);
     } else {
-      gsap.to(el, { strokeDashoffset: destino, duration: 0.9, ease: 'power2.inOut' });
+      gsap.to(el, { strokeDashoffset: destino, duration: 1.3, ease: 'power3.inOut' });
     }
     previo.current = progreso;
   }, [progreso, d, rapido]);

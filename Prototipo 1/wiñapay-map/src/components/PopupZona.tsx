@@ -18,13 +18,30 @@ interface Props {
 
 const limitar = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
-function Valor({ visible, children }: { visible: boolean; children: ReactNode }) {
+const NUMERO = /^([+−-]?)(\d+)(?:\.(\d+))?$/;
+
+function Valor({ visible, children, rapido }: { visible: boolean; children: ReactNode; rapido: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   const antes = useRef(visible);
   useEffect(() => {
-    if (visible && !antes.current && ref.current) gsap.fromTo(ref.current, { opacity: 0, y: 6, scale: 0.96 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power2.out' });
+    const el = ref.current;
+    if (visible && !antes.current && el) {
+      gsap.fromTo(el, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: rapido ? 0.2 : 0.8, ease: 'power3.out', clearProps: 'transform' });
+      // Si el dato es un número, cuenta desde cero hasta su valor (el texto final es siempre el real).
+      const m = typeof children === 'string' ? NUMERO.exec(children) : null;
+      const nodo = el.firstChild;
+      if (m && !rapido && nodo?.nodeType === Node.TEXT_NODE) {
+        const fin = Number(`${m[2]}.${m[3] ?? '0'}`), dec = m[3]?.length ?? 0;
+        const o = { v: 0 };
+        gsap.to(o, {
+          v: fin, duration: 1.1, ease: 'power2.out',
+          onUpdate: () => { nodo.nodeValue = m[1] + o.v.toFixed(dec); },
+          onComplete: () => { nodo.nodeValue = children as string; },
+        });
+      }
+    }
     antes.current = visible;
-  }, [visible]);
+  }, [visible, children, rapido]);
   return <span ref={ref} className={`valor${visible ? '' : ' oculto'}`} aria-label={visible ? undefined : 'dato oculto'}>{visible ? children : '???'}</span>;
 }
 
@@ -118,7 +135,7 @@ export function PopupZona({ ctrl, estado, datos, evaluaciones }: Props) {
           }}
           onCloseAutoFocus={(e) => e.preventDefault()}
         >
-          <Entrada contenedor={ref} />
+          <Entrada contenedor={ref} rapido={estado.ligero} />
           <Dialog.Close className="x" aria-label="Cerrar">×</Dialog.Close>
           <span className={`etiqueta-tipo${completa ? ' ok' : ''}`}>
             {completa ? 'Zona completa' : dePrueba ? 'Manchas de prueba · NDVI real' : 'Área quemada MCD64A1 · NDVI real'}
@@ -137,7 +154,7 @@ export function PopupZona({ ctrl, estado, datos, evaluaciones }: Props) {
             {filas.map((r, i) => (
               <li key={r.k} className={r.frase ? 'frase' : ''}>
                 <span>{r.k}</span>
-                <Valor visible={ver.includes(i)}>{r.v}</Valor>
+                <Valor visible={ver.includes(i)} rapido={estado.ligero}>{r.v}</Valor>
               </li>
             ))}
           </ul>
@@ -188,10 +205,17 @@ export function PopupZona({ ctrl, estado, datos, evaluaciones }: Props) {
   );
 }
 
-function Entrada({ contenedor }: { contenedor: React.RefObject<HTMLDivElement | null> }) {
+/** Entrada suave: la tarjeta sube y aparece sin rebote, y sus partes llegan escalonadas. */
+function Entrada({ contenedor, rapido }: { contenedor: React.RefObject<HTMLDivElement | null>; rapido: boolean }) {
   useLayoutEffect(() => {
     const el = contenedor.current;
-    if (el) gsap.fromTo(el, { opacity: 0, scale: 0.94, y: 36 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: 'back.out(1.5)', clearProps: 'transform' });
-  }, [contenedor]);
+    if (!el) return;
+    if (rapido) {
+      gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.2 });
+      return;
+    }
+    gsap.fromTo(el, { opacity: 0, y: 28, scale: 0.985 }, { opacity: 1, y: 0, scale: 1, duration: 0.75, ease: 'power3.out', clearProps: 'transform' });
+    gsap.fromTo(el.children, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.045, delay: 0.12, ease: 'power3.out', clearProps: 'transform' });
+  }, [contenedor, rapido]);
   return null;
 }

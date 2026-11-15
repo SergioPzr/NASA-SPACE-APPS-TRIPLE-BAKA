@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { DM_Sans, DM_Serif_Display } from 'next/font/google';
 import { NavSitio } from '@/components/NavSitio';
 import { RegistroSW } from '@/components/RegistroSW';
+import { Transicion } from '@/components/Transicion';
 import './globals.css';
 
 const texto = DM_Sans({ subsets: ['latin'], variable: '--f-texto', display: 'swap' });
@@ -30,6 +31,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <NavSitio />
         <div id="contenido">{children}</div>
         <RegistroSW />
+        <Transicion />
       </body>
     </html>
   );

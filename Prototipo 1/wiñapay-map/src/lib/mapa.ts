@@ -91,6 +91,23 @@ export function crearMapa(op: Opciones): Controlador {
   const C = {
     bosque: tok('--bosque'), profundo: tok('--profundo'), salvia: tok('--salvia'), arena: tok('--arena'), dorado: tok('--dorado'), terracota: tok('--terracota'),
     texto: tok('--texto'), base: tok('--base-distrito'), hover: tok('--hover-distrito'),
+    rojoFuego: tok('--rojo-fuego'), brasa: tok('--brasa'), llama: tok('--llama'), brote: tok('--brote'),
+  };
+  const conAlfa = (hex: string, a: number) => `rgba(${[1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(',')},${a})`;
+
+  /* Calor: un punto por mancha aún encendida, con peso según su área (se dibuja como mapa de calor). */
+  const areaMax = Math.max(...MANCHAS.map((m) => m.properties.area_ha), 1);
+  const calorDatos = (excluir?: number) => ({
+    type: 'FeatureCollection',
+    features: MANCHAS.filter((m) => m.id !== excluir && !estado.apagadas.includes(m.id)).map((m) => ({
+      type: 'Feature', properties: { w: 0.35 + 0.65 * Math.sqrt(m.properties.area_ha / areaMax) },
+      geometry: { type: 'Point', coordinates: centro(m.geometry) },
+    })),
+  });
+  let calorOp = 0;
+  const setCalor = (v: number) => { calorOp = v; map!.setPaintProperty('manchas-calor', 'heatmap-opacity', v); };
+  const actualizarCalor = (excluir?: number) => {
+    (map!.getSource('calor') as unknown as { setData(d: unknown): void }).setData(calorDatos(excluir));
   };
 
   const bboxProv = DIST.reduce(
@@ -104,7 +121,8 @@ export function crearMapa(op: Opciones): Controlador {
   const colorExplorada = (id: string) => {
     const v = datos.resultados.distritos[id].agregaciones.media_anual.media;
     const t = Math.max(0, Math.min(1, (v - 0.2) / (0.5 - 0.2)));
-    return gsap.utils.interpolate(C.dorado, C.salvia, t) as string;
+    // Escala de verdor en tres tonos: menos verde (dorado) → salvia → más verde (brote)
+    return gsap.utils.interpolate([C.dorado, C.salvia, C.brote], t) as string;
   };
 
   /* ───────────── Cámara ───────────── */
@@ -144,6 +162,12 @@ export function crearMapa(op: Opciones): Controlador {
     aVals.set(id, v);
     map!.setFeatureState({ source: 'manchas', id }, { a: v });
   };
+  const setOk = (id: number, v: number) => { map!.setFeatureState({ source: 'manchas', id }, { okv: v }); };
+  /** Trazo de los bordes de distrito: se dibuja hasta `p` (0–1) con opacidad `op`. */
+  const setTrazo = (p: number, op: number) => {
+    map!.setPaintProperty('dist-trazo', 'line-gradient', ['step', ['line-progress'], C.dorado, p, 'rgba(0,0,0,0)']);
+    map!.setPaintProperty('dist-trazo', 'line-opacity', op);
+  };
   const curvasOp = { v: 0 };
   const setCurvasOp = (v: number) => { curvasOp.v = v; map!.setPaintProperty('curvas', 'line-opacity', v); };
   const animar = (o: Record<string, number>, to: Record<string, number>, dur: number, onUpdate: () => void) =>
@@ -178,12 +202,43 @@ export function crearMapa(op: Opciones): Controlador {
     m.addLayer({ id: 'dist-fill', type: 'fill', source: 'dist', paint: {
       'fill-color': ['coalesce', ['feature-state', 'color'], C.base],
       'fill-opacity': ['*', 0.85, ['coalesce', ['feature-state', 'v'], 0]] } });
+    // Retícula de «píxeles de satélite» sobre los distritos (mismo motivo que la portada).
+    const lado = 10;
+    const [sr, sg, sb] = [1, 3, 5].map((i) => parseInt(C.salvia.slice(i, i + 2), 16));
+    const puntos = new Uint8Array(lado * lado * 4);
+    for (let y = 0; y < lado; y++) for (let x = 0; x < lado; x++) {
+      const d = Math.hypot(x - 4.5, y - 4.5);
+      if (d < 1.9) { const i = (y * lado + x) * 4; puntos.set([sr, sg, sb, Math.round(255 * 0.55 * Math.min(1, 1.9 - d))], i); }
+    }
+    m.addImage('puntos', { width: lado, height: lado, data: puntos });
+    m.addLayer({ id: 'dist-puntos', type: 'fill', source: 'dist', paint: {
+      'fill-pattern': 'puntos', 'fill-opacity': ['*', 0.9, ['coalesce', ['feature-state', 'v'], 0]] } });
     m.addLayer({ id: 'curvas', type: 'line', source: 'curvas', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: {
       'line-color': ['interpolate', ['linear'], ['get', 'elev'], 3100, C.salvia, 3900, C.arena, 4650, C.texto],
       'line-width': 0.8, 'line-opacity': 0 } });
     m.addLayer({ id: 'dist-line', type: 'line', source: 'dist', paint: {
       'line-color': C.dorado, 'line-width': 1.4,
       'line-opacity': ['*', 0.95, ['coalesce', ['feature-state', 'v'], 0]] } });
+    // Bordes como líneas con métrica de progreso, para dibujarlos como un trazo en la entrada.
+    m.addSource('dist-bordes', { type: 'geojson', lineMetrics: true, data: {
+      type: 'FeatureCollection',
+      features: DIST.map((f) => ({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: f.geometry.coordinates[0] } })),
+    } as never });
+    m.addLayer({ id: 'dist-trazo', type: 'line', source: 'dist-bordes', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: {
+      'line-width': 2.6, 'line-blur': 0.4,
+      'line-gradient': ['step', ['line-progress'], C.dorado, 0, 'rgba(0,0,0,0)'] } });
+    // El calor de cada incendio: degradado de llama a rojo alrededor de las manchas encendidas
+    m.addSource('calor', { type: 'geojson', data: calorDatos() as never });
+    m.addLayer({ id: 'manchas-calor', type: 'heatmap', source: 'calor', paint: {
+      'heatmap-weight': ['get', 'w'],
+      'heatmap-intensity': 1.4,
+      'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 9, 45, 11, 95, 13, 200],
+      'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'],
+        0, 'rgba(0,0,0,0)', 0.15, conAlfa(C.rojoFuego, 0.35), 0.4, conAlfa(C.terracota, 0.7), 0.7, C.brasa, 1, C.llama],
+      'heatmap-opacity': 0 } });
+    m.addLayer({ id: 'manchas-halo', type: 'line', source: 'manchas', layout: { 'line-join': 'round' }, paint: {
+      'line-color': C.dorado, 'line-width': 34, 'line-blur': 26,
+      'line-opacity': ['*', 0.2, ['coalesce', ['feature-state', 'a'], 0]] } });
     m.addLayer({ id: 'manchas-glow', type: 'line', source: 'manchas', layout: { 'line-join': 'round' }, paint: {
       'line-color': C.terracota, 'line-width': 12, 'line-blur': 10,
       'line-opacity': ['*', 0.6, ['coalesce', ['feature-state', 'a'], 0]] } });
@@ -193,6 +248,11 @@ export function crearMapa(op: Opciones): Controlador {
       'line-color': ['case', ['boolean', ['feature-state', 'sel'], false], C.texto, C.dorado],
       'line-width': ['case', ['boolean', ['feature-state', 'sel'], false], 3, 1],
       'line-opacity': ['coalesce', ['feature-state', 'a'], 0] } });
+    // Lo ya apagado queda como una mancha «revelada» (no como combate real: es una marca de exploración).
+    m.addLayer({ id: 'manchas-ok', type: 'fill', source: 'manchas', paint: {
+      'fill-color': C.salvia, 'fill-opacity': ['*', 0.6, ['coalesce', ['feature-state', 'okv'], 0]] } });
+    m.addLayer({ id: 'manchas-ok-borde', type: 'line', source: 'manchas', layout: { 'line-join': 'round' }, paint: {
+      'line-color': C.dorado, 'line-width': 1.6, 'line-opacity': ['coalesce', ['feature-state', 'okv'], 0] } });
   }
 
   /* ───────────── Popup: estado, no DOM ───────────── */
@@ -240,26 +300,58 @@ export function crearMapa(op: Opciones): Controlador {
     return c;
   };
   function chorro(desde: { x: number; y: number }, hasta: { x: number; y: number }) {
-    const mx = (desde.x + hasta.x) / 2, my = Math.min(desde.y, hasta.y) - 110;
-    const d = `M${desde.x} ${desde.y} Q${mx} ${my} ${hasta.x} ${hasta.y}`;
-    const a = pathSvg(d, 9, 'rgba(191,230,255,0.35)'), b = pathSvg(d, 3.2, '#eaf7ff');
-    agua.append(a, b);
-    const len = a.getTotalLength();
-    [a, b].forEach((p) => { p.style.strokeDasharray = String(len); p.style.strokeDashoffset = String(len); });
-    const tl = T(gsap.timeline({ onComplete: () => { a.remove(); b.remove(); } }));
-    tl.to([a, b], { strokeDashoffset: 0, duration: D(0.5), ease: 'power1.in' });
-    if (!estado.ligero) {
-      for (let i = 0; i < 14; i++) {
-        const c = circulo(hasta.x, hasta.y, 2 + Math.random() * 3, '#9fe0ff');
-        const ang = Math.random() * Math.PI * 2, dist = 18 + Math.random() * 38;
-        tl.to(c, { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist - 14, opacity: 0, duration: 0.8, ease: 'power2.out', onComplete: () => c.remove() }, 0.45);
+    const tl = T(gsap.timeline());
+    const dx = hasta.x - desde.x, dy = hasta.y - desde.y;
+    const largo = Math.hypot(dx, dy) || 1;
+    const nx = -dy / largo, ny = dx / largo;
+    const mx = (desde.x + hasta.x) / 2, my = Math.min(desde.y, hasta.y) - Math.min(150, largo * 0.4);
+    // Tres hilos de agua en arco (uno en «Modo ligero»): aparecen, fluyen y se recogen hacia el fuego.
+    const hebras = estado.ligero ? [0] : [-8, 0, 8];
+    hebras.forEach((o, i) => {
+      const d = `M${desde.x + nx * o * 0.3} ${desde.y + ny * o * 0.3} Q${mx + nx * o} ${my + ny * o} ${hasta.x + nx * o * 0.5} ${hasta.y + ny * o * 0.5}`;
+      const cuerpo = pathSvg(d, o === 0 ? 11 : 6, 'rgba(191,230,255,0.28)');
+      const nucleo = pathSvg(d, o === 0 ? 3.4 : 2, '#eaf7ff');
+      agua.append(cuerpo, nucleo);
+      const L = cuerpo.getTotalLength();
+      [cuerpo, nucleo].forEach((q) => { q.style.strokeDasharray = `${L} ${L}`; q.style.strokeDashoffset = String(L); });
+      const t0 = i * 0.06;
+      tl.to([cuerpo, nucleo], { strokeDashoffset: 0, duration: D(0.45), ease: 'power2.in' }, t0)
+        .to([cuerpo, nucleo], { strokeDashoffset: -L, duration: D(0.5), ease: 'power2.in' }, t0 + D(1))
+        .add(() => { cuerpo.remove(); nucleo.remove(); }, t0 + D(1.55));
+      if (o === 0 && !estado.ligero) {
+        // Corriente: destellos que recorren el chorro mientras dura
+        const flujo = pathSvg(d, 1.6, 'rgba(255,255,255,0.9)');
+        flujo.style.strokeDasharray = '10 26';
+        agua.append(flujo);
+        tl.fromTo(flujo, { strokeDashoffset: 0, opacity: 0 }, { strokeDashoffset: -216, opacity: 1, duration: D(0.9), ease: 'none' }, D(0.3))
+          .to(flujo, { opacity: 0, duration: D(0.2) }, D(1.1))
+          .add(() => flujo.remove(), D(1.35));
       }
-      for (let i = 0; i < 5; i++) {
-        const c = circulo(hasta.x + (Math.random() - 0.5) * 24, hasta.y, 6 + Math.random() * 6, 'rgba(220,230,235,0.55)');
-        tl.to(c, { y: -46 - Math.random() * 30, opacity: 0, scale: 1.8, transformOrigin: '50% 50%', duration: 1.1, ease: 'power1.out', onComplete: () => c.remove() }, 0.6 + i * 0.05);
+    });
+    if (!estado.ligero) {
+      // Salpicadura
+      for (let i = 0; i < 18; i++) {
+        const c = circulo(hasta.x, hasta.y, 1.5 + Math.random() * 3, '#9fe0ff');
+        const ang = Math.random() * Math.PI * 2, dist = 16 + Math.random() * 44;
+        tl.fromTo(c, { opacity: 0 }, { x: Math.cos(ang) * dist, y: Math.sin(ang) * dist - 18, opacity: 1, duration: 0.25, ease: 'power2.out' }, 0.45 + Math.random() * 0.4)
+          .to(c, { y: '+=22', opacity: 0, duration: 0.5, ease: 'power1.in', onComplete: () => c.remove() }, '>');
+      }
+      // Ondas en el punto de impacto
+      for (let i = 0; i < 3; i++) {
+        const r = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        r.setAttribute('cx', String(hasta.x)); r.setAttribute('cy', String(hasta.y)); r.setAttribute('r', '6');
+        r.setAttribute('fill', 'none'); r.setAttribute('stroke', '#eaf7ff'); r.setAttribute('stroke-width', '2');
+        agua.append(r);
+        tl.fromTo(r, { attr: { r: 6 }, opacity: 0.85 }, { attr: { r: 44 + i * 22 }, opacity: 0, duration: 1, ease: 'power2.out', onComplete: () => r.remove() }, 0.5 + i * 0.22);
+      }
+      // Vapor: el agua contra el fuego sube en nubes suaves
+      for (let i = 0; i < 9; i++) {
+        const c = circulo(hasta.x + (Math.random() - 0.5) * 40, hasta.y, 7 + Math.random() * 8, 'rgba(232,238,240,0.45)');
+        tl.fromTo(c, { opacity: 0, scale: 0.6, transformOrigin: '50% 50%' },
+          { y: -60 - Math.random() * 60, x: (Math.random() - 0.5) * 30, opacity: 0.8, scale: 2.4, duration: 1.4, ease: 'sine.out' }, 0.7 + i * 0.07)
+          .to(c, { opacity: 0, duration: 0.6, onComplete: () => c.remove() }, '>-0.6');
       }
     }
-    tl.to([a, b], { opacity: 0, duration: D(0.3) }, '>-0.4');
     return tl;
   }
 
@@ -273,7 +365,17 @@ export function crearMapa(op: Opciones): Controlador {
     const tl = T(gsap.timeline());
     tl.add(chorro(origen, { x: pt.x, y: pt.y }), 0);
     const o = { a: aVals.get(m.id) ?? 1 };
-    tl.to(o, { a: 0, duration: D(1.1), ease: 'power2.in', onUpdate: () => setA(m.id, o.a) }, D(0.4));
+    // El fuego no se desvanece de golpe: parpadea mientras le cae el agua y luego se extingue.
+    tl.add(() => actualizarCalor(m.id), D(0.9));
+    tl.to(o, {
+      keyframes: [
+        { a: 1, duration: D(0.12) }, { a: 0.55, duration: D(0.1) }, { a: 0.9, duration: D(0.1) },
+        { a: 0.4, duration: D(0.12) }, { a: 0.7, duration: D(0.1) }, { a: 0, duration: D(0.55), ease: 'power2.in' },
+      ],
+      onUpdate: () => setA(m.id, o.a),
+    }, D(0.45));
+    const ok = { v: 0 };
+    tl.to(ok, { v: 1, duration: D(0.8), ease: 'power2.out', onUpdate: () => setOk(m.id, ok.v) }, D(1.15));
     await esperar(tl);
     if (muerto) return;
     const apagadas = [...estado.apagadas, m.id];
@@ -303,6 +405,8 @@ export function crearMapa(op: Opciones): Controlador {
     quitarPadding();
     set({ fase: 'entrando', zona: id, ocupado: true });
     mostrarEtiquetas(false, 0.3);
+    const oh = { v: calorOp };
+    animar(oh, { v: 0.3 }, 0.8, () => setCalor(oh.v));
     MANCHAS.filter((m) => m.properties.distrito !== id && !apagada(m.id)).forEach((m) => {
       const o = { a: aVals.get(m.id) ?? 1 };
       animar(o, { a: 0.2 }, 0.8, () => setA(m.id, o.a));
@@ -324,6 +428,8 @@ export function crearMapa(op: Opciones): Controlador {
     set({ ocupado: true, fase: 'volviendo' });
     cerrarPopup();
     quitarPadding();
+    const oh = { v: calorOp };
+    animar(oh, { v: 0.85 }, 0.8, () => setCalor(oh.v));
     MANCHAS.filter((m) => !apagada(m.id)).forEach((m) => {
       const o = { a: aVals.get(m.id) ?? 0.2 };
       animar(o, { a: 1 }, 0.8, () => setA(m.id, o.a));
@@ -355,7 +461,8 @@ export function crearMapa(op: Opciones): Controlador {
     aVals.clear();
     set({ apagadas: [] });
     DIST.forEach((f) => pintarDistrito(f.properties.id));
-    MANCHAS.forEach((m) => setA(m.id, 1));
+    MANCHAS.forEach((m) => { setA(m.id, 1); setOk(m.id, 0); });
+    actualizarCalor();
     refrescarEtiquetas();
     if (estado.fase === 'zona') await volver();
     else set({ fase: 'provincia' });
@@ -374,29 +481,32 @@ export function crearMapa(op: Opciones): Controlador {
       const w = { v: 10 };
       T(gsap.to(w, { v: 16, duration: 1.4, yoyo: true, repeat: -1, ease: 'sine.inOut', onUpdate: () => map!.setPaintProperty('manchas-glow', 'line-width', w.v) }));
     }
-    if (op.rapido) {
-      map!.jumpTo({ center: [prov.lng, prov.lat], zoom: prov.zoom, pitch: 0, bearing: 0 });
-      DIST.forEach((f) => map!.setFeatureState({ source: 'dist', id: f.id }, { v: 1 }));
-      setCurvasOp(0.38);
-      MANCHAS.forEach((m) => { if (!apagada(m.id)) setA(m.id, 1); });
-      mostrarEtiquetas(true, 0.2);
-      terminar();
-      return;
-    }
-    const ini = estado.ligero ? prov : { ...prov, zoom: prov.zoom + 0.9, pitch: 48, bearing: -14 };
+    // El mapa se dibuja: primero el trazo de los bordes, luego el relleno de cada distrito, las curvas
+    // de nivel, las etiquetas y por último se encienden las manchas. Al volver en la misma sesión
+    // («rápido») se dibuja en versión corta y sin vuelo de cámara.
+    const k = op.rapido ? 0.8 : 1;
+    const ini = estado.ligero || op.rapido ? prov : { ...prov, zoom: prov.zoom + 0.9, pitch: 48, bearing: -14 };
     map!.jumpTo({ center: [ini.lng, ini.lat], zoom: ini.zoom, pitch: ini.pitch, bearing: ini.bearing });
     const tl = T(gsap.timeline());
-    tl.add(volarA(prov, 3.4, 'power2.inOut'), 0);
+    if (ini !== prov) tl.add(volarA(prov, 3.8, 'power2.inOut'), 0);
+    if (estado.ligero) {
+      setTrazo(1.01, 0);
+    } else {
+      const tr = { p: 0 };
+      tl.to(tr, { p: 1.01, duration: D(2 * k), ease: 'power2.inOut', onUpdate: () => setTrazo(tr.p, 1) }, D(0.2 * k));
+      const to = { v: 1 };
+      tl.to(to, { v: 0, duration: D(0.8), onUpdate: () => setTrazo(1.01, to.v) }, D(2.6 * k));
+    }
     DIST.forEach((f, i) => {
       const o = { v: 0 };
-      tl.to(o, { v: 1, duration: D(0.8), ease: 'power2.out', onUpdate: () => map!.setFeatureState({ source: 'dist', id: f.id }, { v: o.v }) }, D(0.25 + i * 0.22));
+      tl.to(o, { v: 1, duration: D(0.9 * k), ease: 'power2.out', onUpdate: () => map!.setFeatureState({ source: 'dist', id: f.id }, { v: o.v }) }, D((1.1 + i * 0.12) * k));
     });
     const oc = { v: 0 };
-    tl.to(oc, { v: 0.38, duration: D(1.6), onUpdate: () => setCurvasOp(oc.v) }, D(0.9));
-    tl.add(() => mostrarEtiquetas(true), D(1.8));
+    tl.to(oc, { v: 0.38, duration: D(1.6 * k), onUpdate: () => setCurvasOp(oc.v) }, D(1.5 * k));
+    tl.add(() => mostrarEtiquetas(true), D(2.3 * k));
     const oa = { a: 0 };
-    tl.to(oa, { a: 1, duration: D(1), ease: 'power1.out', onUpdate: () => MANCHAS.forEach((m) => { if (!apagada(m.id)) setA(m.id, oa.a); }) }, D(2.3));
-    tl.add(terminar, D(3.4));
+    tl.to(oa, { a: 1, duration: D(0.9 * k), ease: 'power1.out', onUpdate: () => { setCalor(0.85 * oa.a); MANCHAS.forEach((m) => { if (!apagada(m.id)) setA(m.id, oa.a); }); } }, D(2.5 * k));
+    tl.add(terminar, D(3.5 * k));
   }
 
   /* ───────────── Arranque asíncrono (MapLibre solo en el cliente) ───────────── */
@@ -405,7 +515,8 @@ export function crearMapa(op: Opciones): Controlador {
     if (muerto) return;
     const m = new maplibregl.Map({
       container: op.contenedor,
-      style: { version: 8, sources: {}, layers: [{ id: 'fondo', type: 'background', paint: { 'background-color': C.bosque } }] },
+      // Fondo transparente: debajo se ve el degradado de profundidad de la página (CSS)
+      style: { version: 8, sources: {}, layers: [{ id: 'fondo', type: 'background', paint: { 'background-color': 'rgba(0,0,0,0)' } }] },
       center: [-71.99, -13.54], zoom: 10, maxPitch: 70, attributionControl: false, fadeDuration: 0,
     });
     map = m;
@@ -457,7 +568,14 @@ export function crearMapa(op: Opciones): Controlador {
       });
       refrescarEtiquetas();
       DIST.forEach((f) => pintarDistrito(f.properties.id));
-      MANCHAS.forEach((mm) => { if (!apagada(mm.id)) aVals.set(mm.id, 1); });
+      MANCHAS.forEach((mm) => { if (!apagada(mm.id)) aVals.set(mm.id, 1); else setOk(mm.id, 1); });
+      // Horizonte con niebla al inclinar la cámara (si esta versión de MapLibre no lo admite, se omite)
+      try {
+        (m as unknown as { setSky?: (s: Record<string, unknown>) => void }).setSky?.({
+          'sky-color': C.bosque, 'horizon-color': C.profundo, 'fog-color': C.bosque,
+          'sky-horizon-blend': 0.7, 'horizon-fog-blend': 0.6, 'fog-ground-blend': 0.3,
+        });
+      } catch { /* sin cielo */ }
       set({ fase: 'intro', ocupado: true });
       intro();
     });

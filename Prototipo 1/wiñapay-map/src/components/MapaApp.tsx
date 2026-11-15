@@ -8,6 +8,7 @@ import type { Datos } from '@/lib/tipos';
 import { useDatos } from '@/lib/useDatos';
 import { PanelFinal } from './PanelFinal';
 import { PopupZona } from './PopupZona';
+import { suavizarManchas } from './suavizar';
 
 const CLAVE_LIGERO = 'winapay-ligero';
 const CLAVE_INTRO = 'winapay-intro-vista';
@@ -46,6 +47,8 @@ function MapaListo({ datos, evaluaciones, evalProvincia }: { datos: Datos; evalu
   const agua = useRef<SVGSVGElement>(null);
   const [ctrl, setCtrl] = useState<Controlador | null>(null);
   const [estado, setEstado] = useState<EstadoMapa | null>(null);
+  // Solo presentación: contornos de las manchas redondeados para dibujarlas (los datos no cambian).
+  const datosMapa = useMemo(() => ({ ...datos, manchas: suavizarManchas(datos.manchas) }), [datos]);
 
   useEffect(() => {
     if (!contenedor.current || !agua.current) return;
@@ -54,7 +57,7 @@ function MapaListo({ datos, evaluaciones, evalProvincia }: { datos: Datos; evalu
       rapido = sessionStorage.getItem(CLAVE_INTRO) === '1';
       sessionStorage.setItem(CLAVE_INTRO, '1');
     } catch { /* sin almacenamiento */ }
-    const c = crearMapa({ contenedor: contenedor.current, agua: agua.current, datos, rapido, ligero: leerLigero() });
+    const c = crearMapa({ contenedor: contenedor.current, agua: agua.current, datos: datosMapa, rapido, ligero: leerLigero() });
     const off = c.suscribir(() => setEstado(c.getEstado()));
     setCtrl(c);
     setEstado(c.getEstado());
@@ -65,7 +68,7 @@ function MapaListo({ datos, evaluaciones, evalProvincia }: { datos: Datos; evalu
       setCtrl(null);
       delete window.__winapay;
     };
-  }, [datos]);
+  }, [datosMapa]);
 
   const manchasDe = useMemo(() => {
     const m = new Map<string, number[]>();
@@ -128,6 +131,14 @@ function MapaListo({ datos, evaluaciones, evalProvincia }: { datos: Datos; evalu
         </label>
         <button type="button" className="btn-ghost" onClick={() => void ctrl?.reiniciar()}>Reiniciar</button>
       </div>
+
+      {estado?.fase === 'provincia' && (
+        <aside className="leyenda-mapa" aria-label="Cómo leer el mapa">
+          <p><i className="ley-fuego" aria-hidden="true" />Área quemada registrada (MCD64A1)</p>
+          <p><i className="ley-revelada" aria-hidden="true" />Mancha ya explorada</p>
+          <p className="ley-ndvi"><span>Verdor del distrito explorado (NDVI)</span><i className="ley-barra" aria-hidden="true" /><small><span>menor</span><span>mayor</span></small></p>
+        </aside>
+      )}
 
       <div className="pista" role="status">{pista}</div>
       {hayPrueba && <div className="aviso-prueba">Manchas de prueba · pendiente MCD64A1</div>}

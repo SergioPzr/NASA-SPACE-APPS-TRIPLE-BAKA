@@ -1,101 +1,234 @@
-.landing { color: var(--tinta); }
+.landing { --margen: clamp(20px, 6vw, 96px); color: var(--tinta); }
 .landing h1, .landing h2 { font-family: var(--fuente-titulo); font-weight: 400; }
 .landing h2, .landing h3, .landing p { margin-block: 0; }
 
-.sobretitulo { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dorado); }
-.sobretitulo.oscuro { color: var(--terra-texto); }
-
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 999px; padding: 14px 24px; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; border: 2px solid transparent; transition: transform 0.2s ease, filter 0.2s ease, background 0.2s ease; }
-.btn:hover { transform: translateY(-2px); }
+/* Botones: rectos, planos, un solo acento (dorado) */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; border-radius: 0; padding: 16px 30px; font-size: 15px; font-weight: 700; letter-spacing: 0.01em; border: 0; }
 .btn-dorado { background: var(--dorado); color: var(--bosque); }
-.btn-dorado:hover { filter: brightness(1.06); }
-.btn-contorno { color: var(--crema); border-color: rgba(244, 240, 227, 0.6); }
-.btn-contorno:hover { background: rgba(244, 240, 227, 0.1); }
+.btn-dorado:hover { background: var(--arena); }
 .btn-bosque { background: var(--bosque); color: var(--crema); }
 .btn-bosque:hover { background: var(--profundo); }
 
-/* Portada */
-.hero {
-  position: relative; overflow: hidden; isolation: isolate; color: var(--crema);
-  min-height: min(640px, 92vh); display: flex; align-items: center;
-  padding: calc(var(--nav-h) + 56px) clamp(20px, 9vw, 140px) 120px;
-  background: linear-gradient(105deg, var(--bosque) 0%, var(--bosque) 40%, var(--profundo) 100%);
+/* ───────── Portada «Dos Cusco» ─────────
+   Dos capas del mismo tamaño: abajo el territorio sin fuego (crema), arriba el territorio con
+   las áreas quemadas registradas (bosque), recortado por un borde irregular en el centro.
+   Cada capa lleva su copia del titular, así cambia de color al cruzar la costura. */
+.hero { position: relative; --c: 0.56; --corte: 56%; --fs-hero: clamp(2.1rem, 7.2vw, 6.25rem); --base-hero: clamp(24px, 5svh, 56px); --mapa-top: 56px; --hero-alto: clamp(560px, calc(100svh - 176px), 800px); background: var(--bosque); color: var(--crema); }
+.hero-partido { position: relative; height: var(--hero-alto); overflow: hidden; background: var(--crema); touch-action: pan-y; cursor: ew-resize; }
+.hero-capa { position: absolute; inset: 0; }
+.hero-vivo { background: var(--crema); color: var(--bosque); }
+/* El corte se mueve solo con transform: la capa avanza y su interior retrocede lo mismo.
+   El borde rasgado es fijo y va pegado al lado derecho de la capa. --c va de 0 a 1. */
+.hero-fuego {
+  color: var(--crema);
+  transform: translateX(calc((var(--c) - 1) * 100%));
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 6%, calc(100% + 10px) 12%, calc(100% - 8px) 19%, calc(100% + 16px) 26%, calc(100% - 4px) 33%, calc(100% + 12px) 41%, calc(100% - 16px) 49%, calc(100% + 6px) 57%, calc(100% - 10px) 64%, calc(100% + 14px) 72%, calc(100% - 6px) 80%, calc(100% + 10px) 88%, calc(100% - 12px) 94%, calc(100% + 4px) 100%, 0 100%);
 }
-.hero::after { content: ""; position: absolute; inset: auto 0 0; height: 96px; background: linear-gradient(transparent, var(--crema)); z-index: -1; }
-.contornos { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
-.contornos path { fill: none; stroke: var(--salvia); stroke-opacity: 0.22; stroke-width: 1.2; }
-.contornos path.maestra { stroke: var(--dorado); stroke-opacity: 0.4; stroke-width: 1.8; }
-.hero-contenido { max-width: 900px; animation: subir 0.8s ease both; }
-.hero h1 { font-size: clamp(44px, 7vw, 80px); line-height: 0.98; letter-spacing: -0.02em; color: var(--crema); margin: 18px 0 !important; }
-.entrada { font-size: 18px; line-height: 1.7; color: var(--arena); max-width: 560px; }
-.acciones-hero { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-@keyframes subir { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.hero-fuego-interior { position: absolute; inset: 0; background: var(--bosque); transform: translateX(calc((1 - var(--c)) * 100%)); }
+.brasa { position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--dorado); box-shadow: 0 0 10px 2px rgba(217, 164, 65, 0.55); pointer-events: none; opacity: 0; }
 
-/* Tres pasos */
-.pasos { list-style: none; margin: -28px auto 56px; padding: 0; position: relative; z-index: 2; width: min(1180px, calc(100% - 32px)); display: grid; grid-template-columns: repeat(3, 1fr); background: var(--blanco); border: 1px solid var(--linea); border-radius: 16px; box-shadow: 0 16px 45px rgba(23, 62, 50, 0.1); }
-.pasos li { padding: 22px 26px; border-right: 1px solid var(--linea); display: grid; gap: 6px; align-content: start; }
-.pasos li:last-child { border-right: 0; }
-.pasos b { color: var(--bosque); font-size: 13px; letter-spacing: 0.08em; }
-.pasos span { color: var(--apagado); font-size: 14px; line-height: 1.55; }
+/* Control de teclado del corte: invisible hasta recibir el foco */
+.corte-control { position: absolute; z-index: 5; left: var(--margen); top: calc(var(--hero-alto) - 72px); display: flex; gap: 14px; align-items: center; background: var(--crema); color: var(--bosque); font-size: 14px; font-weight: 700; padding: 12px 16px; clip-path: inset(50%); width: 1px; height: 1px; overflow: hidden; white-space: nowrap; }
+.corte-control:focus-within { clip-path: none; width: auto; height: auto; overflow: visible; }
+.corte-control input { width: min(220px, 40vw); accent-color: var(--terracota); }
 
-/* Atajos */
-.atajos { width: min(1180px, calc(100% - 32px)); margin: 0 auto 72px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.atajo { display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: inherit; background: var(--blanco); border: 1px solid var(--linea); border-radius: 16px; padding: 26px; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
-.atajo:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(23, 62, 50, 0.12); border-color: var(--salvia); }
-.atajo .simbolo { font-size: 26px; color: var(--terra-texto); line-height: 1; }
-.atajo h2 { font-size: 28px; color: var(--bosque); margin-top: 6px; }
-.atajo p { font-size: 14px; line-height: 1.6; color: var(--apagado); }
-.atajo strong { margin-top: auto; padding-top: 10px; font-size: 12px; letter-spacing: 0.06em; color: var(--terra-texto); }
+.hero-titulo { position: absolute; left: var(--margen); bottom: var(--base-hero); margin: 0; font-family: var(--fuente-titulo); font-weight: 400; font-size: var(--fs-hero); line-height: 0.98; letter-spacing: -0.02em; }
 
-/* Banda verde */
-.banda { background: var(--bosque); color: var(--crema); padding: 76px 16px; }
-.banda-interior { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-.banda h2 { font-size: clamp(32px, 4.4vw, 46px); line-height: 1.06; color: var(--arena); margin: 12px 0 16px !important; }
-.banda p { color: var(--crema); line-height: 1.7; font-size: 15px; }
-.banda .btn { margin-top: 26px; }
-.pilares { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.pilares li { padding: 20px; background: rgba(244, 240, 227, 0.06); border: 1px solid rgba(244, 240, 227, 0.22); border-radius: 14px; display: grid; gap: 8px; align-content: start; }
-.pilares b { color: var(--dorado); font-size: 15px; }
-.pilares span { font-size: 13px; line-height: 1.55; color: var(--crema); }
+.hero-mapa { position: absolute; left: var(--corte); top: calc(var(--nav-h) + var(--mapa-top)); transform: translateX(-50%); height: max(150px, calc(var(--hero-alto) - var(--nav-h) - var(--mapa-top) - 1.96 * var(--fs-hero) - var(--base-hero) - 28px)); max-width: 88vw; overflow: visible; }
+.mapa-distrito { stroke-width: 1.6; stroke-linejoin: round; }
+.hero-mapa-fuego .mapa-distrito { fill: var(--profundo); stroke: var(--salvia); }
+.hero-mapa-fuego .mapa-punto { fill: var(--salvia); opacity: 0.28; }
+.mapa-mancha { fill: var(--terracota); stroke: var(--arena); stroke-width: 1.4; stroke-linejoin: round; }
+.hero-mapa-vivo .mapa-distrito { fill: var(--salvia); stroke: var(--bosque); }
+.hero-mapa-vivo .mapa-punto { fill: var(--bosque); opacity: 0.3; }
 
-/* Cifras */
-.cifras { width: min(1180px, calc(100% - 32px)); margin: 56px auto 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; text-align: center; }
-.cifras div { padding: 8px; display: grid; gap: 4px; }
-.cifras b { font-family: var(--fuente-titulo); font-weight: 400; font-size: clamp(40px, 5vw, 58px); line-height: 1; color: var(--bosque); }
-.cifras span { font-size: 13px; color: var(--apagado); }
-.aviso-landing { width: min(760px, calc(100% - 32px)); margin: 28px auto 0 !important; background: #f1ead9; border-left: 4px solid var(--dorado); border-radius: 6px 12px 12px 6px; padding: 12px 16px; font-size: 13px; line-height: 1.55; color: var(--tinta); }
+.hero-leyenda { position: absolute; top: calc(var(--nav-h) + 20px); margin: 0; font-size: 1rem; line-height: 1.35; }
+.hero-leyenda-izq { left: var(--margen); max-width: min(30ch, calc(var(--corte) - var(--margen) - 24px)); }
+.hero-leyenda-der { right: var(--margen); text-align: right; max-width: min(30ch, calc(100% - var(--corte) - var(--margen) - 24px)); }
 
-/* Usuarios */
-.usuarios { background: var(--arena); margin-top: 64px; padding: 64px 16px; }
-.usuarios-interior { max-width: 1180px; margin: 0 auto; }
-.usuarios h2 { font-size: clamp(32px, 4.4vw, 46px); line-height: 1.06; color: var(--bosque); margin: 10px 0 24px !important; }
-.usuarios-filas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 32px; }
-.usuarios article { background: var(--blanco); border: 1px solid var(--linea); border-radius: 14px; padding: 22px; }
-.usuarios h3 { font-family: var(--fuente-titulo); font-weight: 400; font-size: 24px; color: var(--bosque); margin-bottom: 8px !important; }
-.usuarios article p { font-size: 14px; line-height: 1.6; color: var(--apagado); }
+.hero-cifra { display: none; position: absolute; right: var(--margen); bottom: var(--base-hero); text-align: right; gap: 8px; }
+.hero-cifra b { font-family: var(--fuente-titulo); font-weight: 400; font-size: clamp(3rem, 6vw, 5.5rem); line-height: 1; letter-spacing: -0.02em; }
+.hero-cifra span { font-size: 1rem; line-height: 1.4; max-width: 22ch; margin-left: auto; }
+@media (min-width: 1000px) { .hero-cifra { display: grid; } }
 
-/* Pie */
-.pie { background: #102f26; color: var(--arena); padding: 36px 16px calc(36px + env(safe-area-inset-bottom, 0px)); }
-.pie-interior { max-width: 1180px; margin: 0 auto; display: flex; justify-content: space-between; gap: 20px; align-items: center; flex-wrap: wrap; }
-.marca-pie { font-family: var(--fuente-titulo); font-size: 30px; letter-spacing: -0.04em; color: var(--arena); line-height: 1.1; }
+.hero-pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 48px; padding: 36px var(--margen) 40px; background: var(--bosque); }
+.entrada { font-size: 1.125rem; line-height: 1.6; color: var(--crema); max-width: 56ch; }
+.acciones-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.enlace-hero { color: var(--crema); font-weight: 700; font-size: 15px; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; padding: 14px 4px; }
+.enlace-hero:hover { color: var(--dorado); }
+
+/* Tres pasos: tres palabras grandes sobre fondo crema, sin tarjetas */
+.pasos { list-style: none; margin: 0; padding: clamp(56px, 9vw, 120px) var(--margen); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px clamp(24px, 5vw, 72px); background: var(--crema); }
+.pasos li { display: grid; gap: 14px; align-content: start; }
+.pasos h2 { font-size: clamp(2.25rem, 4.6vw, 4rem); line-height: 1; letter-spacing: -0.02em; color: var(--bosque); }
+.pasos span { font-size: 1.0625rem; line-height: 1.6; color: var(--tinta); max-width: 34ch; }
+
+/* Accesos: tres bandas a todo el ancho, cada una con su tono */
+.atajos { display: grid; }
+.atajo { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) auto; align-items: end; gap: 24px clamp(24px, 4vw, 64px); min-height: 220px; padding: clamp(36px, 5vw, 64px) var(--margen); text-decoration: none; color: inherit; }
+.atajo:first-child { min-height: 340px; }
+.atajo h2 { font-size: clamp(2.25rem, 5.2vw, 4.75rem); line-height: 1; letter-spacing: -0.02em; color: inherit; }
+.atajo p { font-size: 1.0625rem; line-height: 1.6; max-width: 40ch; color: inherit; }
+.atajo strong { font-size: 15px; letter-spacing: 0.02em; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px; padding-bottom: 2px; }
+.atajo:hover strong { text-decoration-thickness: 5px; }
+.atajo-bosque { background: var(--bosque); color: var(--crema); }
+.atajo-salvia { background: var(--salvia); color: var(--bosque); }
+.atajo-arena { background: var(--arena); color: var(--bosque); }
+.landing .atajo:focus-visible { outline-offset: -8px; outline-color: var(--bosque); }
+.landing .atajo-bosque:focus-visible { outline-color: var(--dorado); }
+
+/* Honestidad: bosque, titular grande y cuatro pilares en una columna */
+.banda { background: var(--bosque); color: var(--crema); padding: clamp(64px, 9vw, 128px) var(--margen); }
+.banda-interior { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 48px clamp(40px, 7vw, 112px); align-items: start; }
+.banda-bajada { font-size: 1rem; color: var(--salvia); margin-bottom: 16px !important; }
+.banda h2 { font-size: clamp(2.25rem, 5vw, 4.25rem); line-height: 1.02; letter-spacing: -0.02em; color: var(--crema); margin-bottom: 24px !important; }
+.banda p { color: var(--crema); line-height: 1.7; font-size: 1.0625rem; max-width: 52ch; }
+.banda .btn { margin-top: 32px; }
+.pilares { list-style: none; margin: 0; padding: 0; display: grid; gap: 32px; }
+.pilares li { display: grid; gap: 6px; }
+.pilares b { font-family: var(--fuente-titulo); font-weight: 400; font-size: 1.75rem; line-height: 1.1; color: var(--crema); }
+.pilares span { font-size: 1rem; line-height: 1.55; color: var(--salvia); max-width: 44ch; }
+
+.aviso-landing { margin: 0 var(--margen) 48px !important; background: var(--arena); padding: 16px 20px; font-size: 0.9375rem; line-height: 1.55; color: var(--tinta); }
+
+/* Para quién: arena, texto directo en tres columnas */
+.usuarios { background: var(--arena); padding: clamp(64px, 9vw, 120px) var(--margen); color: var(--tinta); }
+.usuarios-bajada { font-size: 1rem; color: var(--tinta); margin-bottom: 16px !important; }
+.usuarios h2 { font-size: clamp(2.25rem, 5vw, 4.25rem); line-height: 1.02; letter-spacing: -0.02em; color: var(--bosque); margin-bottom: 48px !important; max-width: 18ch; }
+.usuarios-filas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px clamp(24px, 5vw, 72px); margin-bottom: 56px; }
+.usuarios h3 { font-family: var(--fuente-titulo); font-weight: 400; font-size: 2rem; line-height: 1.1; color: var(--bosque); margin-bottom: 10px !important; }
+.usuarios article p { font-size: 1.0625rem; line-height: 1.6; color: var(--tinta); max-width: 34ch; }
+
+/* Cierre: el nombre vuelve a todo el ancho */
+.pie { background: var(--bosque); color: var(--arena); padding: clamp(48px, 7vw, 88px) var(--margen) calc(24px + env(safe-area-inset-bottom, 0px)); overflow: hidden; }
+.pie-datos { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 48px; }
+.pie small { font-size: 0.9375rem; line-height: 1.6; color: var(--arena); max-width: 52ch; }
+.marca-pie { margin-top: clamp(32px, 6vw, 72px) !important; font-family: var(--fuente-titulo); font-size: clamp(4.5rem, 19vw, 17rem); letter-spacing: -0.045em; line-height: 0.9; padding-bottom: 0.16em; color: var(--crema); white-space: nowrap; }
 .marca-pie span { color: var(--dorado); }
-.pie small { font-size: 12px; line-height: 1.6; color: var(--arena); }
+
+/* ───────── Historia «Lo que vio el satélite» ─────────
+   Columna de texto que avanza y visual fijo (sticky). Sin JS o con movimiento reducido se ve todo a la vez;
+   con movimiento, el fondo cambia de color por escena: bosque, ceniza (tinta), crema y salvia. */
+.historia { position: relative; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); background: var(--crema); color: var(--tinta); }
+.historia-visual { grid-column: 2; grid-row: 1; position: sticky; top: var(--nav-h); height: calc(100svh - var(--nav-h)); display: flex; flex-direction: column; justify-content: center; gap: 24px; padding: 32px var(--margen) 32px 24px; background-color: inherit; }
+.h-mapa { width: 100%; max-height: 44svh; overflow: visible; }
+.historia--viva .h-mapa { max-height: 74svh; }
+.h-distrito { fill: var(--profundo); stroke: var(--salvia); stroke-width: 1.8; stroke-linejoin: round; }
+.historia:not(.historia--viva) .h-distrito[data-v='robusta'] { fill: var(--bosque); stroke: var(--crema); }
+.historia:not(.historia--viva) .h-distrito[data-v='parcial'] { fill: var(--arena); stroke: var(--bosque); }
+.historia:not(.historia--viva) .h-distrito[data-v='ninguna'] { fill: var(--blanco); stroke: var(--bosque); }
+.h-mancha { fill: var(--terracota); stroke: var(--arena); stroke-width: 1.4; stroke-linejoin: round; }
+.h-etiqueta { font-family: var(--fuente); font-weight: 700; font-size: 24px; fill: var(--bosque); paint-order: stroke; stroke: var(--crema); stroke-width: 5px; stroke-linejoin: round; }
+.h-etiqueta[data-v='robusta'] { fill: var(--crema); stroke: var(--bosque); }
+.h-grafica { margin: 0; width: 100%; }
+.historia--viva .h-grafica { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 32px var(--margen) 32px 24px; }
+.h-grafica svg { width: 100%; height: auto; overflow: visible; }
+.h-grafica figcaption { margin-top: 10px; font-size: 14px; line-height: 1.45; color: var(--apagado); max-width: 52ch; }
+.h-guia { stroke: var(--tinta); stroke-opacity: 0.15; }
+.h-eje { font-family: var(--fuente); font-size: 14px; fill: var(--apagado); }
+.h-linea { fill: none; stroke: var(--bosque); stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; }
+.h-tendencia { fill: none; stroke: var(--terracota); stroke-width: 2.5; stroke-linecap: round; }
+
+.historia-pasos { grid-column: 1; grid-row: 1; padding-left: var(--margen); }
+.h-paso { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; gap: 20px; max-width: 46ch; padding-block: 12svh; }
+.h-paso h2, .h-paso h3 { font-family: var(--fuente-titulo); font-weight: 400; font-size: clamp(2.25rem, 4.4vw, 4rem); line-height: 1; letter-spacing: -0.02em; color: var(--bosque); }
+.h-cifra { font-family: var(--fuente-titulo); font-size: clamp(2rem, 4vw, 3.5rem); line-height: 1.08; letter-spacing: -0.015em; }
+.h-cifra b { font-weight: 400; font-variant-numeric: tabular-nums; }
+.h-paso > p:not(.h-cifra) { font-size: 1.125rem; line-height: 1.65; }
+.h-paso .btn { align-self: flex-start; }
+.h-veredictos { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; font-size: 1.0625rem; line-height: 1.45; }
+.h-veredictos li { position: relative; padding-left: 30px; }
+.h-veredictos li::before { content: ''; position: absolute; left: 0; top: 0.35em; width: 16px; height: 16px; border: 2px solid var(--bosque); }
+.h-veredictos li[data-v='robusta']::before { background: var(--bosque); }
+.h-veredictos li[data-v='parcial']::before { background: var(--arena); }
+.h-veredictos li[data-v='ninguna']::before { background: var(--blanco); }
+.h-veredictos b { font-family: var(--fuente-titulo); font-weight: 400; font-size: 1.6em; line-height: 1; margin-right: 4px; }
+.historia--viva .h-paso[data-escena='1'], .historia--viva .h-paso[data-escena='2'] { color: var(--crema); }
+.historia--viva .h-paso[data-escena='1'] h2, .historia--viva .h-paso[data-escena='2'] h3 { color: var(--crema); }
+
+/* Cinta infinita de principios */
+.cinta { background: var(--terracota); color: var(--blanco); overflow: hidden; padding: clamp(28px, 4vw, 52px) 0; }
+.cinta-pista { display: flex; width: max-content; }
+.cinta-grupo { display: flex; list-style: none; margin: 0; padding: 0; }
+.cinta-grupo li { display: flex; align-items: center; font-family: var(--fuente-titulo); font-size: clamp(2rem, 5vw, 4.25rem); line-height: 1.1; white-space: nowrap; }
+.cinta-sep { display: inline-block; width: 0.42em; height: 0.42em; margin-inline: clamp(24px, 3vw, 52px); background: var(--crema); border-radius: 42% 58% 61% 39% / 47% 41% 59% 53%; }
+html:not(.anima) .cinta-pista { width: auto; }
+html:not(.anima) .cinta-grupo[aria-hidden] { display: none; }
+html:not(.anima) .cinta-grupo { flex-wrap: wrap; row-gap: 10px; padding-inline: var(--margen); }
+html:not(.anima) .cinta-grupo li { white-space: normal; font-size: clamp(1.5rem, 3.4vw, 2.5rem); }
+
+/* Con movimiento activo, estas secciones se vuelven transparentes y el color de fondo de la página
+   cambia suavemente al pasar por ellas. */
+html.anima .landing [data-fondo] { background-color: transparent; }
+
+/* Seguidor del cursor en los accesos */
+.seguidor { position: fixed; left: 0; top: 0; z-index: 60; width: 132px; height: 132px; border-radius: 50%; background: var(--dorado); color: var(--bosque); display: grid; place-items: center; text-align: center; padding: 14px; font-size: 15px; font-weight: 700; line-height: 1.2; pointer-events: none; transform: scale(0); }
 
 @media (max-width: 900px) {
-  .banda-interior { grid-template-columns: 1fr; gap: 32px; }
-  .atajos, .usuarios-filas { grid-template-columns: 1fr; }
-  .cifras { grid-template-columns: repeat(2, 1fr); gap: 20px 12px; }
+  .historia { grid-template-columns: 1fr; }
+  .historia-visual { grid-column: 1; grid-row: 1; z-index: 2; height: 50svh; padding: 16px var(--margen); }
+  .historia--viva .h-mapa { max-height: 44svh; }
+  .historia--viva .h-grafica { padding: 16px var(--margen); }
+  .historia-pasos { grid-column: 1; grid-row: 2; padding-inline: var(--margen); }
+  .h-paso { min-height: 85svh; justify-content: flex-end; padding-block: 8svh 12svh; }
+  .h-etiqueta { font-size: 30px; }
+  .pasos, .usuarios-filas { grid-template-columns: 1fr; }
+  .atajo { grid-template-columns: 1fr; min-height: 0; gap: 14px; }
+  .atajo:first-child { min-height: 0; }
+  .banda-interior { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
-  .hero { min-height: 560px; padding-bottom: 100px; }
-  .entrada { font-size: 16px; }
-  .pasos { grid-template-columns: 1fr; margin-top: -20px; }
-  .pasos li { border-right: 0; border-bottom: 1px solid var(--linea); padding: 16px 18px; }
-  .pasos li:last-child { border-bottom: 0; }
-  .pilares { grid-template-columns: 1fr; }
-  .banda { padding: 56px 16px; }
+  .hero { --mapa-top: 112px; --hero-alto: clamp(520px, calc(100svh - 300px), 640px); }
+  .hero-leyenda { max-width: 44vw; font-size: 0.875rem; }
+  .hero-pie { padding-top: 28px; padding-bottom: 32px; }
+  .entrada { font-size: 1rem; }
   .btn { width: 100%; }
-  .pie-interior { display: block; }
-  .pie small:last-child { display: block; margin-top: 14px; }
 }
+
+/* ───────── Color con vida en la portada (degradados con significado) ───────── */
+/* Hero: el lado del fuego arde alrededor del mapa; el lado vivo tiene luz de día */
+.hero-fuego-interior { background: radial-gradient(60% 78% at 56% 32%, color-mix(in srgb, var(--rojo-fuego) 40%, var(--bosque)) 0%, var(--bosque) 50%, var(--noche) 100%); }
+.hero-vivo { background: radial-gradient(70% 85% at 62% 30%, var(--blanco) 0%, var(--crema) 45%, color-mix(in srgb, var(--salvia) 40%, var(--crema)) 100%); }
+.hero-pie { background: linear-gradient(180deg, var(--bosque), var(--noche)); }
+.hero-mapa-fuego .mapa-mancha { fill: url(#fuego-grad); stroke: var(--llama); }
+.hero-mapa-vivo .mapa-distrito { fill: url(#vivo-grad); }
+.hero-cifra b { background: linear-gradient(100deg, var(--bosque) 20%, var(--musgo)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brasa:nth-of-type(3n) { background: var(--llama); box-shadow: 0 0 12px 3px color-mix(in srgb, var(--llama) 60%, transparent); }
+.brasa:nth-of-type(3n + 1) { background: var(--brasa); box-shadow: 0 0 12px 3px color-mix(in srgb, var(--brasa) 55%, transparent); }
+.btn-dorado { background: linear-gradient(100deg, var(--dorado), var(--llama)); }
+.btn-dorado:hover { background: var(--llama); }
+
+/* Pasos: cada verbo con su color (verdor, dato, fuego) */
+.pasos h2 { -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: 0.08em; }
+.pasos li:nth-child(1) h2 { background-image: linear-gradient(100deg, var(--bosque), var(--musgo)); }
+.pasos li:nth-child(2) h2 { background-image: linear-gradient(100deg, var(--ocre), var(--musgo)); }
+.pasos li:nth-child(3) h2 { background-image: linear-gradient(100deg, var(--terra-texto), var(--rojo-fuego)); }
+
+/* Historia: resplandor de brasa en la escena del fuego y de verdor en la de las conclusiones */
+.h-brillo { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+.historia:not(.historia--viva) .h-brillo { display: none; }
+.h-brillo-fuego { background: radial-gradient(55% 55% at 62% 52%, color-mix(in srgb, var(--brasa) 45%, transparent), transparent 70%); }
+.h-brillo-verde { background: radial-gradient(60% 60% at 60% 45%, color-mix(in srgb, var(--brote) 40%, transparent), transparent 72%); }
+.historia-visual > svg, .historia-visual > figure { position: relative; }
+.h-linea { stroke: url(#h-grad-linea); }
+.h-mancha { fill: var(--brasa); stroke: var(--llama); }
+
+/* Honestidad y «Para quién»: luz suave que entra por una esquina */
+.banda, .usuarios { position: relative; isolation: isolate; }
+.banda::before, .usuarios::before { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.banda::before { background: radial-gradient(55% 70% at 90% 20%, color-mix(in srgb, var(--dorado) 22%, transparent), transparent 70%), radial-gradient(50% 60% at 0% 100%, color-mix(in srgb, var(--musgo) 40%, transparent), transparent 70%); }
+.usuarios::before { background: radial-gradient(50% 70% at 95% 0%, color-mix(in srgb, var(--llama) 25%, transparent), transparent 70%); }
+
+/* Cinta: el calor del fuego de punta a punta */
+.cinta { background: linear-gradient(90deg, var(--rojo-fuego), var(--terracota) 35%, var(--brasa) 65%, var(--terracota) 85%, var(--rojo-fuego)); }
+
+/* Accesos: profundidad en cada banda */
+.atajo-bosque { background: radial-gradient(70% 120% at 100% 0%, color-mix(in srgb, var(--dorado) 22%, transparent), transparent 60%), linear-gradient(120deg, var(--bosque), var(--noche)); }
+.atajo-salvia { background: linear-gradient(120deg, var(--salvia), color-mix(in srgb, var(--salvia) 70%, var(--brote))); }
+.atajo-arena { background: linear-gradient(120deg, var(--arena), color-mix(in srgb, var(--arena) 75%, var(--llama))); }
+.seguidor { background: radial-gradient(circle at 35% 30%, var(--llama), var(--dorado) 65%, var(--ocre)); }
+
+/* Cierre: noche con un brote de verde en la esquina; el punto final arde */
+.pie { background: radial-gradient(70% 120% at 92% 110%, color-mix(in srgb, var(--musgo) 50%, transparent), transparent 60%), linear-gradient(180deg, var(--bosque), var(--noche)); }
+.marca-pie span { color: var(--llama); }
