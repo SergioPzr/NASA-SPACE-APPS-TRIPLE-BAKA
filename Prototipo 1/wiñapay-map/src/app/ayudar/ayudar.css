@@ -1,0 +1,278 @@
+/* ============================================================
+   WIÑAPAY — Página ¿Cómo ayudar?
+   ============================================================ */
+
+.ayudar {
+  --gap: clamp(1.5rem, 4vw, 3rem);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero */
+.ayudar-hero {
+  padding: clamp(3rem, 10vw, 7rem) var(--gap) clamp(2rem, 6vw, 4rem);
+  max-width: 60ch;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.ayudar-bajada {
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-salvia, #6e8b6e);
+  margin-bottom: 0.5rem;
+}
+
+.ayudar-hero h1 {
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+
+.ayudar-intro {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.65;
+  color: var(--color-texto-suave, #555);
+}
+
+/* Secciones genéricas */
+.ayudar-seccion {
+  padding: clamp(2rem, 6vw, 4rem) var(--gap);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ayudar-seccion h2 {
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  margin-bottom: 2rem;
+}
+
+/* Lista de cards */
+.ayudar-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ayudar-card {
+  border-radius: 1rem;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  background: var(--color-fondo-card, #fafaf8);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ayudar-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
+  }
+}
+
+.ayudar-card-reforestacion { border-top: 3px solid #4a7c59; }
+.ayudar-card-donacion      { border-top: 3px solid #c8973e; }
+.ayudar-card-voluntariado  { border-top: 3px solid #5b7fa6; }
+
+.ayudar-card-cabeza {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.ayudar-chip {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.ayudar-card-reforestacion .ayudar-chip { background: #d4ead8; color: #2d5c38; }
+.ayudar-card-donacion .ayudar-chip      { background: #f5e4c5; color: #7a540e; }
+.ayudar-card-voluntariado .ayudar-chip  { background: #ccdcef; color: #224466; }
+
+.ayudar-card h3 {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.ayudar-org {
+  font-size: 0.85rem;
+  color: var(--color-texto-suave, #666);
+  margin: 0;
+}
+
+.ayudar-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  flex: 1;
+  margin: 0;
+}
+
+.ayudar-yape {
+  font-size: 0.95rem;
+  background: #eef9e8;
+  border: 1px solid #c3e8c0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+}
+
+.ayudar-enlace {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-dorado, #b8860b);
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.ayudar-enlace:hover,
+.ayudar-enlace:focus-visible {
+  text-decoration: underline;
+}
+
+/* Prácticas */
+.ayudar-practicas-seccion {
+  background: var(--color-fondo-crema, #f9f6ef);
+  max-width: 100%;
+  padding-inline: var(--gap);
+}
+
+.ayudar-practicas-seccion > * {
+  max-width: 1200px;
+  margin-inline: auto;
+}
+
+.ayudar-practicas-intro {
+  font-size: 1rem;
+  color: var(--color-texto-suave, #666);
+  margin-bottom: 2rem;
+}
+
+.ayudar-practicas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+  gap: 1.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ayudar-practica {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.ayudar-practica-icono {
+  font-size: 1.75rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.ayudar-practica h3 {
+  font-size: 1rem;
+  margin: 0 0 0.4rem;
+}
+
+.ayudar-practica p {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--color-texto-suave, #555);
+}
+
+/* CTA final */
+.ayudar-cta {
+  background: var(--color-bosque, #2d4a35);
+  color: #fff;
+  text-align: center;
+  padding: clamp(3rem, 8vw, 5rem) var(--gap);
+}
+
+.ayudar-cta p {
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  margin-bottom: 0.5rem;
+}
+
+.ayudar-cta h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: 2rem;
+  color: inherit;
+}
+
+.ayudar-cta-acciones {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-contorno {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 2px solid rgba(255,255,255,0.6);
+  color: #fff;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-contorno:hover,
+.btn-contorno:focus-visible {
+  background: rgba(255,255,255,0.1);
+  border-color: #fff;
+}
+
+/* Nota fuentes */
+.ayudar-fuentes {
+  padding: 1.5rem var(--gap);
+  text-align: center;
+  border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.ayudar-fuentes p {
+  font-size: 0.8rem;
+  color: var(--color-texto-suave, #777);
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+.ayudar-fuentes a {
+  color: inherit;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .ayudar-lista {
+    grid-template-columns: 1fr;
+  }
+  .ayudar-practicas {
+    grid-template-columns: 1fr;
+  }
+  .ayudar-cta-acciones {
+    flex-direction: column;
+    align-items: center;
+  }
+}
