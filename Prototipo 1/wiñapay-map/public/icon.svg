@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="WIÑAPAY">
+  <rect width="512" height="512" rx="96" fill="#153119"/>
+  <g fill="none" stroke="#4f6f1d" stroke-width="6" opacity="0.9">
+    <path d="M40 400c90-60 150-20 230-70s140-30 202-90"/>
+    <path d="M40 440c90-60 150-20 230-70s140-30 202-90"/>
+    <path d="M40 360c90-60 150-20 230-70s140-30 202-90"/>
+  </g>
+  <path d="M256 400V232" stroke="#e5b655" stroke-width="22" stroke-linecap="round"/>
+  <path d="M256 250c-70 4-110-34-118-96 66-6 112 28 118 96z" fill="#d0c950"/>
+  <path d="M256 214c60-2 98-38 106-96-58-4-100 30-106 96z" fill="#e5b655"/>
+  <circle cx="392" cy="396" r="30" fill="#af4401"/>
+</svg>
