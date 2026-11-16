@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from 'next';
-import { DM_Sans, DM_Serif_Display } from 'next/font/google';
+import { Fraunces, Outfit } from 'next/font/google';
 import { NavSitio } from '@/components/NavSitio';
 import { RegistroSW } from '@/components/RegistroSW';
 import { Transicion } from '@/components/Transicion';
 import './globals.css';
 
-const texto = DM_Sans({ subsets: ['latin'], variable: '--f-texto', display: 'swap' });
-const titulo = DM_Serif_Display({ subsets: ['latin'], weight: '400', variable: '--f-titulo', display: 'swap' });
+const texto = Outfit({ subsets: ['latin'], variable: '--f-texto', display: 'swap' });
+const titulo = Fraunces({ subsets: ['latin'], variable: '--f-titulo', display: 'swap' });
 
 export const metadata: Metadata = {
   title: { default: 'WIÑAPAY · El territorio cambia. Hagámoslo visible.', template: '%s · WIÑAPAY' },

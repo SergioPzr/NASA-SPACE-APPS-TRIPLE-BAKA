@@ -12,9 +12,9 @@ export default function Acerca() {
       <section className="panel aviso" aria-labelledby="estado">
         <h2 id="estado" style={{ marginTop: 0 }}>Estado de los datos</h2>
         <ul className="lista">
-          <li><strong>NDVI (real):</strong> MODIS MOD13Q1 v061, 250 m, compuestos de 16 días, 2001–2025, con filtro de calidad.</li>
-          <li><strong>Límites y relieve (reales):</strong> distritos del INEI y curvas de nivel de NASADEM (cada 100 m).</li>
-          <li><strong>Manchas de fuego (de prueba):</strong> mientras no carguemos el producto MCD64A1 de área quemada, las manchas del mapa son sintéticas y están marcadas así en pantalla. No representan incendios reales.</li>
+          <li><strong>NDVI (real y validado):</strong> MODIS MOD13Q1 v061, 250 m, compuestos de 16 días, 2001–2025, con filtro de calidad QA estricto.</li>
+          <li><strong>Límites y relieve (reales):</strong> 8 distritos oficiales de la provincia de Cusco (INEI) y curvas de nivel de NASADEM (cada 100 m).</li>
+          <li><strong>Áreas quemadas (reales y validadas):</strong> producto satelital NASA MCD64A1 v061 (500 m, 2001–2025), extrayendo 16 polígonos reales de cicatrices de incendios en la provincia.</li>
         </ul>
       </section>
 
@@ -40,7 +40,7 @@ export default function Acerca() {
 
       <h2>Fuentes</h2>
       <ul className="lista">
-        <li>NASA LP DAAC · MOD13Q1 v061 (NDVI) y, pendiente, MCD64A1 v061 (área quemada), vía AppEEARS.</li>
+        <li>NASA LP DAAC · MOD13Q1 v061 (NDVI) y MCD64A1 v061 (área quemada), vía AppEEARS.</li>
         <li>NASADEM 30 m (relieve) · INEI (límites distritales).</li>
       </ul>
       <p>Proyecto para el NASA Space Apps Challenge 2026. <Link href="/mapa">Volver al mapa</Link>.</p>

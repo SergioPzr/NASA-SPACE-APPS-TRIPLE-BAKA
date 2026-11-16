@@ -51,6 +51,7 @@ export interface SerieAgregada {
 export interface ResultadoZona {
   pixeles: number;
   agregaciones: Record<NombreAgregacion, SerieAgregada>;
+  frase_ciudadana?: string;
 }
 export interface Resultados {
   metodo: {

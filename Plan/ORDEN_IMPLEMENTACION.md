@@ -85,18 +85,26 @@
   - [x] Manchas reales de área quemada extraídas de MCD64A1 (`es_de_prueba: false`, 16 polígonos reales)
   - [x] `.env.local` creado desde `.env.example`
   - [x] `npm run build` y `npm run test:unit` pasando al 100% (15/15)
-- [x] **FASE 2 (Lógica avanzada + Testimonios semilla)**:
+- [x] **FASE 2 (Lógica avanzada + Datos reales validados)**:
   - [x] `scripts/10_recolectar_testimonios.py` ejecutado
-  - [x] Testimonios verificables basados en fuentes públicas (INDECI, Andina, RPP, SPDA, Correo) en `src/data/testimonios_semilla.json` y `.data/testimonios.json`
-  - [x] APIs `/api/distritos`, `/api/manchas`, `/api/serie/[id]`, `/api/testimonios` operativas con fallback local
-- [ ] **FASE 3 (Diseño visual — Claude Code)**:
-  - [ ] Diseñador toma `CLAUDE.md` y `Informacion/02_ESPECIFICACION_UX.md`
-  - [ ] Implementar estética minimalista / documental con los tokens CSS (`--bosque`, `--terracota`, `--dorado`, etc.)
-  - [ ] Componente `SelectorConstelacion` (estética NASA)
+  - [x] Testimonios verificables basados en fuentes públicas (INDECI, Andina, RPP, SPDA, Correo) en `src/data/testimonios_semilla.json` y `.data/testimonios.json` (5 aprobados)
+  - [x] Iniciativas comunitarias reales de recuperación en `.data/iniciativas.json`
+  - [x] APIs `/api/distritos`, `/api/manchas`, `/api/serie/[id]`, `/api/testimonios`, `/api/iniciativas` operativas con fallback local
+  - [x] Datos y metodologías en `/acerca` actualizados a 100% reales (eliminadas menciones a datos sintéticos)
+- [ ] **FASE 3 (Diseño visual — Rediseño limpio con Claude Code)**:
+  - [ ] Diseñador toma `CLAUDE.md` simplificado (sin restricciones de color/fuentes, solo protegiendo lógica y datos)
+  - [ ] Aplicar diseño basado en `Ideas diseno/` sobre la data real
   - [ ] Revisión de accesibilidad y `prefers-reduced-motion`
-- [ ] **FASE 4 (Plan C — Integración final y despliegue)**:
-  - [ ] Checklist completo de integración
-  - [ ] Despliegue en Vercel / Netlify
+- [x] **FASE 4 (Plan C — Integración de datos validados y verificación)**:
+  - [x] 100% datos confirmados y validados cargados (sin datos de relleno)
+  - [x] Build de producción Next.js (Turbopack) y suite de pruebas unitarias 15/15 pasando
+  - [x] Testimonios enriquecidos: 7 testimonios aprobados (fuentes: Andina, RPP, SPDA, Correo, CooperAcción, IGP)
+  - [x] Iniciativas enriquecidas: 6 iniciativas aprobadas (ECOAN, Brigadas SERNANP, Pastos Ccorao, Profonanpe, WWF, Valle Sagrado Verde)
+  - [x] Documento de fuentes APA 7 creado en `Informacion/FUENTES_APA7.md` (25+ fuentes verificables)
+  - [x] Página `/ayudar` implementada (donar, reforestar, voluntariado, prácticas responsables)
+  - [x] Navegación actualizada con enlace `¿Cómo ayudar?`
+  - [x] CTA `¿Cómo ayudar?` integrado en landing page (sección tras «Para quién es»)
+  - [ ] Despliegue en Vercel / Netlify (pendiente tras rediseño final)
 
 ---
 
